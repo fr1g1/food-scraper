@@ -1,29 +1,13 @@
-import { load } from 'npm:cheerio@1.0.0'
+import { load } from 'cheerio'
 
-type Request = {
-    name: string
-    type: RequestType
-    url: string
-}
+import {
+    RequestType,
+    type Restaurant,
+    type Result,
+    type ScrapedData,
+} from './types'
 
-type ScrapedData = {
-    foodName: string
-    price: string
-}
-
-type Parsed = {
-    name: string
-    data: ScrapedData[]
-}
-
-const enum RequestType {
-    BISTRO = 'bistro',
-    CANTEEN = 'canteen',
-    COOKPOINT = 'cookpoint',
-    KANAS = 'kanas',
-}
-
-const restaurants: Request[] = [
+const restaurants: Restaurant[] = [
     {
         name: 'Bistro 22',
         type: RequestType.BISTRO,
@@ -51,13 +35,13 @@ const restaurants: Request[] = [
     },
 ]
 
-const scrapeSite = async (url: string) => {
+const fetchSite = async (url: string) => {
     const response = await fetch(url)
     return response.text()
 }
 
-const parseBistro = async (request: Request): Promise<Parsed> => {
-    const siteData = await scrapeSite(request.url)
+const parseBistro = async (request: Restaurant): Promise<Result> => {
+    const siteData = await fetchSite(request.url)
     const $ = load(siteData)
     const data: ScrapedData[] = []
 
@@ -75,8 +59,8 @@ const parseBistro = async (request: Request): Promise<Parsed> => {
     }
 }
 
-const parseCanteen = async (request: Request): Promise<Parsed> => {
-    const siteData = await scrapeSite(request.url)
+const parseCanteen = async (request: Restaurant): Promise<Result> => {
+    const siteData = await fetchSite(request.url)
     const $ = load(siteData)
     const data: ScrapedData[] = []
 
@@ -93,8 +77,8 @@ const parseCanteen = async (request: Request): Promise<Parsed> => {
     }
 }
 
-const parseCookpoint = async (request: Request): Promise<Parsed> => {
-    const siteData = await scrapeSite(request.url)
+const parseCookpoint = async (request: Restaurant): Promise<Result> => {
+    const siteData = await fetchSite(request.url)
     const $ = load(siteData)
     const data: ScrapedData[] = []
 
@@ -113,8 +97,8 @@ const parseCookpoint = async (request: Request): Promise<Parsed> => {
     }
 }
 
-const parseKanas = async (request: Request): Promise<Parsed> => {
-    const siteData = await scrapeSite(request.url)
+const parseKanas = async (request: Restaurant): Promise<Result> => {
+    const siteData = await fetchSite(request.url)
     const $ = load(siteData)
     const data: ScrapedData[] = []
 
@@ -134,7 +118,7 @@ const parseKanas = async (request: Request): Promise<Parsed> => {
     }
 }
 
-const parseData = (request: Request) => {
+const parseData = (request: Restaurant) => {
     switch (request.type) {
         case RequestType.BISTRO:
             return parseBistro(request)
@@ -147,22 +131,13 @@ const parseData = (request: Request) => {
     }
 }
 
-const generateHtml = async () => {
-    let response = '<!DOCTYPE html><html><head><title>Menu</title></head><body><div>'
+export const scrapeRestaurants = async () => {
+    let response = []
     for (const restaurant of restaurants) {
         const parsed = await parseData(restaurant)
-        response += `<table style="border: 1px solid; margin-bottom: 10px;"><thead><tr><th colspan="2" style="border-bottom: 1px solid;">${parsed.name}</th></tr></thead><tbody>`
-        for (const item of parsed.data) {
-            response += `<tr><td>${item.foodName}</td><td>${item.price}</td></tr>`
-        }
-        response += `</tbody></table>`
+        response.push(parsed)
     }
-    response += '</div></body></html>'
 
     return response
 }
 
-Deno.serve({ port: 3000 }, async () => {
-    const html = await generateHtml()
-    return new Response(html, { status: 200, headers: { 'content-type': 'text/html; charset=utf-8' } })
-})
