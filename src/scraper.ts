@@ -31,7 +31,7 @@ const restaurants: Restaurant[] = [
     {
         name: 'Kanas',
         type: RequestType.KANAS,
-        url: 'http://www.kanas.cz/stranka/jidelna',
+        url: 'https://jidelna100chuti.cz/',
     },
 ]
 
@@ -102,10 +102,10 @@ const parseKanas = async (request: Restaurant): Promise<Result> => {
     const $ = load(siteData)
     const data: ScrapedData[] = []
 
-    const rowEls = $('.polozka')
+    const rowEls = $('.menu-one-day').find('tr').filter((_, el) => $(el).children().is('td'))
     for (const rowEl of rowEls) {
-        const foodName = $(rowEl).find('.jidlo').text().replace(/\d*(?:,\d+)*$/, '').trim()
-        const price = $(rowEl).find('.cena').text().replace(/,-/, '').trim()
+        const foodName = $(rowEl).children('td').first().text().split('\t')[1].replace(/\d*(?:,\d+)*$/, '').trim()
+        const price = $(rowEl).children('td').last().text().replace(/\sKč/, '').trim()
         if (foodName === '----') {
             continue
         }
