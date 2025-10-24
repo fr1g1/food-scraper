@@ -67,8 +67,9 @@ const parseCanteen = async (request: Restaurant): Promise<Result> => {
     const rowEls = [...$('.Hl'), ...$('.Po')]
     for (const rowEl of rowEls) {
         const foodName = $(rowEl).find('.jjjaz1jjj').text().replace(/\d*(?:,\d+)*$/, '').trim()
-        const price = $(rowEl).find('.slcen2').text().replace(/,-/, '').trim()
-        data.push({ foodName, price })
+        const employeePrice = $(rowEl).find('.slcen2').text().replace(/,-/, '').trim()
+        const externalPrice = $(rowEl).find('.slcen3').text().replace(/,-/, '').trim()
+        data.push({ foodName, price: `${employeePrice} / ${externalPrice}` })
     }
 
     return {
