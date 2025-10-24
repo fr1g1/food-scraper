@@ -19,4 +19,5 @@ export const enum RequestType {
     CANTEEN = 'canteen',
     COOKPOINT = 'cookpoint',
     KANAS = 'kanas',
+    NEPAL = 'nepal',
 }

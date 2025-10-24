@@ -33,6 +33,11 @@ const restaurants: Restaurant[] = [
         type: RequestType.KANAS,
         url: 'https://jidelna100chuti.cz/',
     },
+    {
+        name: 'Nepál',
+        type: RequestType.NEPAL,
+        url: 'https://nepalbrno.cz/poledni.php',
+    },
 ]
 
 const fetchSite = async (url: string) => {
@@ -118,6 +123,29 @@ const parseKanas = async (request: Restaurant): Promise<Result> => {
     }
 }
 
+const parseNepal = async (request: Restaurant): Promise<Result> => {
+    const siteData = await fetchSite(request.url)
+    const $ = load(siteData)
+    const data: ScrapedData[] = []
+
+    const now = new Date()
+    const currentDate = `${now.getDate()}.${now.getMonth() + 1}.${now.getFullYear()}`
+
+    const rowEls = $('.day-section')
+        .filter((_, el) => $(el).find('.day-title').text().trim().includes(currentDate))
+        .find('.menu-item')
+    for (const rowEl of rowEls) {
+        const foodName = $(rowEl).find('h3').text().trim()
+        const price = $(rowEl).find('span').text().replace(/\sKč/, '').trim().split('.')[0]
+        data.push({ foodName, price })
+    }
+
+    return {
+        name: request.name,
+        data,
+    }
+}
+
 const parseData = (request: Restaurant) => {
     switch (request.type) {
         case RequestType.BISTRO:
@@ -128,6 +156,8 @@ const parseData = (request: Restaurant) => {
             return parseCookpoint(request)
         case RequestType.KANAS:
             return parseKanas(request)
+        case RequestType.NEPAL:
+            return parseNepal(request)
     }
 }
 
