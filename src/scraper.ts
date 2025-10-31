@@ -1,4 +1,4 @@
-import { load } from 'cheerio'
+import { load, type Cheerio } from 'cheerio'
 
 import {
     RequestType,
@@ -50,8 +50,29 @@ const parseBistro = async (request: Restaurant): Promise<Result> => {
     const $ = load(siteData)
     const data: ScrapedData[] = []
 
-    const dayInWeek = new Date().getDay() - 1
-    const rowEls = $('.menu-list_item-row').slice(dayInWeek * 3, dayInWeek * 3 + 3) // Each day has 3 rows
+    const now = new Date()
+    const currentDate = `${now.getDate()}.${now.getMonth() + 1}.${now.getFullYear()}`
+
+    let rowEls = []
+
+    // Filter rows for the current day only
+    let currentDay = false
+    const x = $('.menu-list > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)').children()
+    for (let i = 0; i < x.length; i++) {
+        const el = x[i]
+        if ($(el).hasClass('menu-list_day')) {
+            const dayText = $(el).text().trim().split(' ')[1]
+            if (dayText === currentDate) {
+                currentDay = true
+            } else {
+                if (currentDay) break
+            }
+        } else if (currentDay && $(el).hasClass('menu-list_item')) {
+            const item = $(el).children('.menu-list_item-row')
+            rowEls.push(item)
+        }
+    }
+
     for (const rowEl of rowEls) {
         const foodName = $(rowEl).find('.menu-list_item-name').contents().filter((_, el) => !$(el).is('small')).text().trim()
         const price = $(rowEl).find('.menu-list_item-price').text().replace(/\sKč/, '').trim()
