@@ -36,7 +36,7 @@ const restaurants: Restaurant[] = [
     {
         name: 'Nepál',
         type: RequestType.NEPAL,
-        url: 'https://nepalbrno.cz/poledni.php',
+        url: 'https://nepalbrno.cz/NepalBrno/poledni.php',
     },
 ]
 
@@ -150,7 +150,7 @@ const parseNepal = async (request: Restaurant): Promise<Result> => {
     const data: ScrapedData[] = []
 
     const now = new Date()
-    const currentDate = `${now.getDate()}.${now.getMonth() + 1}.${now.getFullYear()}`
+    const currentDate = `${now.getDate()}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getFullYear()}`
 
     const rowEls = $('.day-section')
         .filter((_, el) => $(el).find('.day-title').text().trim().includes(currentDate))
