@@ -52,10 +52,12 @@ export function Html({ data }: { data: Result[] }) {
 
 Bun.serve({
     port: 3000,
-    fetch: async () => {
-        const data = await scrapeRestaurants()
-        const html = await renderToReadableStream(<Html data={data} />)
+    routes: {
+        '/': async () => {
+            const data = await scrapeRestaurants()
+            const html = await renderToReadableStream(<Html data={data} />)
 
-        return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } })
-    },
+            return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } })
+        }
+    }
 })
