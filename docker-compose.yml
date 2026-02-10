@@ -1,0 +1,19 @@
+services:
+  food-scraper:
+    build: .
+    container_name: food-scraper
+    restart: always
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.food-scraper.rule=Host(`menu.frigi.me`)"
+      - "traefik.http.routers.food-scraper.entrypoints=web"
+      - "traefik.http.services.food-scraper.loadbalancer.server.port=3000"
+
+    networks:
+      - traefik_net
+
+networks:
+  traefik_net:
+    external: true
+
