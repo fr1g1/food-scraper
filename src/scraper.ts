@@ -51,7 +51,7 @@ const parseBistro = async (request: Restaurant): Promise<Result> => {
     const data: ScrapedData[] = []
 
     const now = new Date()
-    const currentDate = `${now.getDate()}.${now.getMonth() + 1}.${now.getFullYear()}`
+    const currentDate = `${now.getDate()}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getFullYear()}`
 
     let rowEls = []
 
