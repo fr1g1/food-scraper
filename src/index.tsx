@@ -1,9 +1,10 @@
-import { renderToReadableStream } from 'react-dom/server'
+import { renderToString } from 'react-dom/server'
 
 import { scrapeRestaurants } from './scraper'
-import type { Result } from './types'
+import type { Result, ScrapedData } from './types'
 
-export function Row({ foodName, price, transparent }: { foodName: string, price?: string, transparent: boolean }) {
+export function Row({ data, transparent }: { data: ScrapedData, transparent: boolean }) {
+    const { foodName, price } = data
     return (
         <div
             style={{
@@ -40,8 +41,8 @@ export function Html({ data }: { data: Result[] }) {
                     <div key={name} style={{ alignItems: 'stretch', width: 1000 }}>
                         <h2 style={{ backgroundColor: '#1b3f3f', marginBottom: 4 }}>{name}</h2>
                         {data.length > 0
-                            ? data.map(({ foodName, price }, i) => <Row key={i} foodName={foodName} price={price} transparent={i % 2 !== 0} />)
-                            : <Row foodName="---" transparent={false} />
+                            ? data.map((scrapedData, i) => <Row key={i} data={scrapedData} transparent={i % 2 !== 0} />)
+                            : <Row data={{ foodName: "---", price: undefined }} transparent={false} />
                         }
                     </div>
                 ))}
@@ -55,7 +56,7 @@ Bun.serve({
     routes: {
         '/': async () => {
             const data = await scrapeRestaurants()
-            const html = await renderToReadableStream(<Html data={data} />)
+            const html = renderToString(<Html data={data} />)
 
             return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } })
         }
