@@ -6,7 +6,7 @@ export type Restaurant = {
 
 export type ScrapedData = {
     foodName: string
-    price: string
+    price: string | undefined
 }
 
 export type Result = {
