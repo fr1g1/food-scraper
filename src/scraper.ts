@@ -129,15 +129,16 @@ const parseKanas = async (request: Restaurant): Promise<Result> => {
     const $ = load(siteData)
     const data: ScrapedData[] = []
 
-    const rowEls = $('.menu-one-day').find('tr').filter((_, el) => $(el).children().is('td'))
+    const rowEls = $('.menu-one-day').find('.flex.gap-y-1')
     for (const rowEl of rowEls) {
-        const foodName = $(rowEl).children('td').first().children('b').text().replace(/\d*(?:,\d+)*$/, '').trim()
-        const price = $(rowEl).children('td').last().text().replace(/\sKč/, '').trim()
+        const foodName = $(rowEl).find('b').text().trim()
+        const price = $(rowEl).find("div.text-right.ms-auto").text().replace(/\sKč/, '').trim()
         if (foodName === '') {
             continue
         }
         data.push({ foodName, price })
     }
+
     return {
         name: request.name,
         data,
